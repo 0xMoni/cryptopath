@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf7ff;
+  --foreground: #1a1035;
+  --accent: #7c3aed;
+  --accent-light: #a855f7;
+  --accent-glow: #6d28d9;
+  --card: #ffffff;
+  --card-border: #e9d5ff;
+  --success: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --gradient-start: #7c3aed;
+  --gradient-end: #ec4899;
+  --surface: #f3e8ff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-glow: var(--accent-glow);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-gradient-start: var(--gradient-start);
+  --color-gradient-end: var(--gradient-end);
+  --color-surface: var(--surface);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: linear-gradient(180deg, #faf7ff 0%, #f3e8ff 30%, #ede9fe 70%, #faf7ff 100%);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.glow-card {
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.glow-card:hover {
+  box-shadow: 0 8px 30px rgba(124, 58, 237, 0.15), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  border: 1.5px solid transparent;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-image: linear-gradient(white, white), linear-gradient(135deg, #c084fc, #f472b6);
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(135deg, #6d28d9, #db2777);
+}
+
+.gradient-surface {
+  background: linear-gradient(135deg, #f5f3ff, #fdf2f8);
+}
