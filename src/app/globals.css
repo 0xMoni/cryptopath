@@ -34,12 +34,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html, body {
+  height: auto !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   background: linear-gradient(180deg, #faf7ff 0%, #f3e8ff 30%, #ede9fe 70%, #faf7ff 100%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
-  min-height: 100vh;
 }
 
 .glow-card {

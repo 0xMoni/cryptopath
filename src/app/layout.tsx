@@ -19,7 +19,6 @@ export const viewport: Viewport = {
   themeColor: "#8b5cf6",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -28,9 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full`}>
-      <body className="min-h-full flex flex-col pb-16">
-        <main className="flex-1">{children}</main>
+    <html lang="en" className={geistSans.variable}>
+      <body className="pb-20">
+        <main>{children}</main>
         <BottomNav />
       </body>
     </html>
