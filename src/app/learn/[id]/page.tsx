@@ -1,246 +1,69 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { levels } from "@/data/levels";
+import { redirect } from "next/navigation";
 
-type Phase = "lesson" | "quiz" | "complete";
-
-export default function LevelPage() {
-  const params = useParams();
-  const router = useRouter();
-  const levelId = Number(params.id);
+export default async function LevelPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const levelId = Number(id);
   const level = levels.find((l) => l.id === levelId);
 
-  const [phase, setPhase] = useState<Phase>("lesson");
-  const [lessonIndex, setLessonIndex] = useState(0);
-  const [quizIndex, setQuizIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [showExplanation, setShowExplanation] = useState(false);
-
-  useEffect(() => {
-    if (!level) router.push("/learn");
-  }, [level, router]);
-
-  if (!level) return null;
-
-  const currentLesson = level.lessons[lessonIndex];
-  const currentQuiz = level.quiz[quizIndex];
-  const progress =
-    phase === "lesson"
-      ? ((lessonIndex + 1) / (level.lessons.length + level.quiz.length)) * 100
-      : phase === "quiz"
-      ? ((level.lessons.length + quizIndex + 1) /
-          (level.lessons.length + level.quiz.length)) *
-        100
-      : 100;
-
-  function nextLesson() {
-    setShowExplanation(false);
-    if (lessonIndex < level!.lessons.length - 1) {
-      setLessonIndex((i) => i + 1);
-    } else {
-      setPhase("quiz");
-    }
-  }
-
-  function submitAnswer(index: number) {
-    setSelectedAnswer(index);
-    if (index === currentQuiz.correctIndex) {
-      setScore((s) => s + 1);
-    }
-  }
-
-  function nextQuiz() {
-    setSelectedAnswer(null);
-    if (quizIndex < level!.quiz.length - 1) {
-      setQuizIndex((i) => i + 1);
-    } else {
-      setPhase("complete");
-      const saved = localStorage.getItem("cryptopath-progress");
-      const completed: number[] = saved ? JSON.parse(saved) : [];
-      if (!completed.includes(levelId)) {
-        completed.push(levelId);
-        localStorage.setItem("cryptopath-progress", JSON.stringify(completed));
-      }
-    }
-  }
+  if (!level) redirect("/learn");
 
   return (
-    <div className="px-5 py-8 max-w-lg mx-auto min-h-screen flex flex-col">
-      {/* Progress bar */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <button
-            onClick={() => router.push("/learn")}
-            className="text-sm text-foreground/50 font-medium"
-          >
-            ← Back
-          </button>
-          <span className="text-xs text-foreground/40 font-medium">
-            {level.icon} {level.title}
-          </span>
+    <div className="px-5 py-6 max-w-lg mx-auto">
+      <Link
+        href="/learn"
+        className="inline-flex items-center gap-1 text-sm text-accent font-bold mb-8"
+      >
+        ← Back
+      </Link>
+
+      {/* Hero */}
+      <div className="text-center mb-8">
+        <div className="w-24 h-24 rounded-full gradient-btn flex items-center justify-center text-5xl mx-auto mb-4 shadow-xl shadow-accent/25">
+          {level.icon}
         </div>
-        <div className="w-full h-2 bg-surface rounded-full overflow-hidden">
-          <div
-            className="h-full gradient-btn rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
+        <p className="text-xs font-bold text-accent uppercase tracking-widest mb-1">Level {level.id}</p>
+        <h1 className="text-2xl font-extrabold text-foreground mb-2">
+          {level.title}
+        </h1>
+        <p className="text-foreground/50 text-sm">
+          {level.description}
+        </p>
+      </div>
+
+      {/* What you'll learn */}
+      <div className="bg-white rounded-2xl p-5 border border-card-border shadow-md shadow-accent/5 mb-6">
+        <h2 className="text-sm font-bold text-foreground mb-4">What you&apos;ll learn:</h2>
+        <div className="space-y-3">
+          {level.lessons.map((lesson, i) => (
+            <div key={lesson.id} className="flex items-start gap-3">
+              <div className="w-7 h-7 rounded-full gradient-btn flex items-center justify-center text-xs font-bold text-white shrink-0">
+                {i + 1}
+              </div>
+              <span className="text-sm text-foreground/70 pt-0.5">{lesson.question}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 pt-3 border-t border-card-border flex items-center gap-2">
+          <span className="text-lg">🧠</span>
+          <span className="text-sm text-accent font-semibold">+ {level.quiz.length} quiz questions</span>
         </div>
       </div>
 
-      {/* Lesson Phase */}
-      {phase === "lesson" && (
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1">
-            <p className="text-xs text-accent font-bold uppercase mb-3">
-              Lesson {lessonIndex + 1} of {level.lessons.length}
-            </p>
-            <h2 className="text-xl font-bold text-foreground mb-6">
-              {currentLesson.question}
-            </h2>
+      {/* Time estimate */}
+      <div className="text-center mb-6">
+        <span className="inline-flex items-center gap-2 bg-accent/5 text-accent text-xs font-semibold px-4 py-2 rounded-full border border-accent/10">
+          ⏱ Takes about 5 minutes
+        </span>
+      </div>
 
-            <div className="bg-card border border-card-border glow-card rounded-2xl p-5 mb-4">
-              <p className="gradient-text text-xs font-bold mb-2">
-                Think of it as:
-              </p>
-              <p className="text-foreground/80 text-base leading-relaxed">
-                {currentLesson.analogy}
-              </p>
-            </div>
-
-            {!showExplanation ? (
-              <button
-                onClick={() => setShowExplanation(true)}
-                className="text-sm text-accent font-medium underline underline-offset-2"
-              >
-                Tell me more →
-              </button>
-            ) : (
-              <div className="bg-surface border border-card-border rounded-2xl p-5 animate-in">
-                <p className="text-foreground/60 text-sm leading-relaxed">
-                  {currentLesson.explanation}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={nextLesson}
-            className="w-full gradient-btn py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-accent/20 mt-6"
-          >
-            {lessonIndex < level.lessons.length - 1
-              ? "Next →"
-              : "Ready for Quiz! 🎯"}
-          </button>
-        </div>
-      )}
-
-      {/* Quiz Phase */}
-      {phase === "quiz" && (
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1">
-            <p className="text-xs text-accent font-bold uppercase mb-3">
-              Quiz — Question {quizIndex + 1} of {level.quiz.length}
-            </p>
-            <h2 className="text-lg font-bold text-foreground mb-6">
-              {currentQuiz.question}
-            </h2>
-
-            <div className="space-y-3">
-              {currentQuiz.options.map((option, i) => {
-                let style = "bg-card border border-card-border";
-                if (selectedAnswer !== null) {
-                  if (i === currentQuiz.correctIndex) {
-                    style = "bg-success/10 border-2 border-success";
-                  } else if (i === selectedAnswer) {
-                    style = "bg-danger/10 border-2 border-danger";
-                  }
-                }
-                return (
-                  <button
-                    key={i}
-                    onClick={() => selectedAnswer === null && submitAnswer(i)}
-                    disabled={selectedAnswer !== null}
-                    className={`w-full text-left p-4 rounded-xl text-sm font-medium transition-all ${style} ${
-                      selectedAnswer === null
-                        ? "hover:border-accent active:scale-[0.98]"
-                        : ""
-                    }`}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-
-            {selectedAnswer !== null && (
-              <div className="mt-4 p-3 rounded-xl bg-surface border border-card-border">
-                <p
-                  className={`text-sm font-medium ${
-                    selectedAnswer === currentQuiz.correctIndex
-                      ? "text-success"
-                      : "text-danger"
-                  }`}
-                >
-                  {selectedAnswer === currentQuiz.correctIndex
-                    ? "✓ Correct!"
-                    : `✗ The answer is: ${currentQuiz.options[currentQuiz.correctIndex]}`}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {selectedAnswer !== null && (
-            <button
-              onClick={nextQuiz}
-              className="w-full gradient-btn py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-accent/20 mt-6"
-            >
-              {quizIndex < level.quiz.length - 1 ? "Next Question →" : "See Results 🎉"}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Complete Phase */}
-      {phase === "complete" && (
-        <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <div className="text-6xl mb-4">
-            {score === level.quiz.length ? "🏆" : score >= level.quiz.length / 2 ? "🎉" : "📚"}
-          </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            {score === level.quiz.length
-              ? "Perfect!"
-              : score >= level.quiz.length / 2
-              ? "Well done!"
-              : "Keep learning!"}
-          </h2>
-          <p className="text-foreground/50 text-sm mb-2">
-            You got {score}/{level.quiz.length} correct
-          </p>
-          <p className="gradient-text text-sm font-bold mb-8">
-            Level {level.id} Complete ✓
-          </p>
-
-          <div className="w-full space-y-3">
-            {level.id < levels.length && (
-              <button
-                onClick={() => router.push(`/learn/${level.id + 1}`)}
-                className="w-full gradient-btn py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-accent/20"
-              >
-                Next Level: {levels[level.id]?.title} →
-              </button>
-            )}
-            <button
-              onClick={() => router.push("/learn")}
-              className="w-full bg-card border border-card-border py-3.5 rounded-xl font-medium text-sm text-foreground/60"
-            >
-              Back to Path
-            </button>
-          </div>
-        </div>
-      )}
+      <Link
+        href={`/learn/${level.id}/1`}
+        className="block w-full gradient-btn py-4 rounded-xl font-bold text-base shadow-xl shadow-accent/25 text-center active:opacity-90"
+      >
+        Let&apos;s Go! 🚀
+      </Link>
     </div>
   );
 }

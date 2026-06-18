@@ -9,6 +9,8 @@ export interface Quiz {
   question: string;
   options: string[];
   correctIndex: number;
+  whyWrong: string;
+  funFact: string;
 }
 
 export interface Level {
@@ -66,11 +68,15 @@ export const levels: Level[] = [
           "A government database",
         ],
         correctIndex: 1,
+        whyWrong: "A blockchain isn't controlled by any bank or government. It's a decentralized ledger — think of it as a public notebook that thousands of computers maintain together.",
+        funFact: "The Bitcoin blockchain has never been hacked since 2009. That's 17+ years of unbroken security — more reliable than most banks!",
       },
       {
         question: "How many Bitcoin will ever exist?",
         options: ["Unlimited", "100 million", "21 million", "1 billion"],
         correctIndex: 2,
+        whyWrong: "Bitcoin has a hard cap coded into its DNA. Unlike regular money that governments can print endlessly, only 21 million BTC will ever exist. That's what makes it scarce like gold.",
+        funFact: "About 4 million Bitcoin are lost forever — people forgot passwords, threw away hard drives, or lost seed phrases. One man in Wales has been trying to dig up a landfill for years to find a hard drive with 7,500 BTC ($750M+)!",
       },
       {
         question: "Who controls cryptocurrency?",
@@ -81,6 +87,8 @@ export const levels: Level[] = [
           "The creator",
         ],
         correctIndex: 2,
+        whyWrong: "That's the whole point of crypto — no single entity controls it. It's maintained by thousands of computers worldwide. Even Bitcoin's creator (Satoshi Nakamoto) can't change the rules alone.",
+        funFact: "Nobody knows who created Bitcoin. Satoshi Nakamoto is a pseudonym — they disappeared in 2011 and their wallet holds ~1 million BTC (worth $100B+). The greatest mystery in tech!",
       },
     ],
   },
@@ -129,6 +137,8 @@ export const levels: Level[] = [
           "The coins you own",
         ],
         correctIndex: 1,
+        whyWrong: "Your wallet address is public — it's safe to share (like an email address). But your private key or seed phrase is the password to everything. Share it = lose everything instantly.",
+        funFact: "In 2022, a crypto investor lost $8 million because they stored their seed phrase in a cloud note app that got hacked. Paper and metal backups are the only truly safe storage!",
       },
       {
         question: "Where is the SAFEST place to store large amounts of crypto?",
@@ -139,6 +149,8 @@ export const levels: Level[] = [
           "In a screenshot on your phone",
         ],
         correctIndex: 2,
+        whyWrong: "Exchanges and hot wallets are connected to the internet — they can be hacked. A cold wallet (like a Ledger or Trezor) stores your keys offline, making it virtually unhackable.",
+        funFact: "The Ledger Nano (a cold wallet) looks like a USB stick but protects billions of dollars. Some people even store their seed phrases on titanium plates that survive fire up to 1,665°C!",
       },
       {
         question: "Which is a red flag for a scam?",
@@ -149,6 +161,8 @@ export const levels: Level[] = [
           "A project with a public team",
         ],
         correctIndex: 1,
+        whyWrong: "No one can guarantee returns in crypto. Legitimate projects never DM you first, never pressure you, and never promise specific profits. If it sounds too good to be true, it's a scam.",
+        funFact: "The biggest crypto scam ever (OneCoin) stole $4 billion. Its founder called herself the 'CryptoQueen' — she disappeared in 2017 and is still on the FBI's most wanted list!",
       },
     ],
   },
@@ -197,6 +211,8 @@ export const levels: Level[] = [
           "It's optional and you can skip it",
         ],
         correctIndex: 1,
+        whyWrong: "KYC (Know Your Customer) is required by law in most countries. It prevents money laundering and terrorism financing. Every legit exchange does it — just like opening a bank account.",
+        funFact: "Coinbase has verified over 110 million users' identities. The process that feels annoying actually protects YOU — it means the exchange is regulated and your funds have legal protection!",
       },
       {
         question: "What's the best approach for a beginner's first investment?",
@@ -207,6 +223,8 @@ export const levels: Level[] = [
           "Borrow money to invest more",
         ],
         correctIndex: 1,
+        whyWrong: "Never invest money you need for rent, food, or emergencies. Crypto is volatile — it can drop 50% in a week. Start with a small amount you'd be OK losing entirely. Your first investment is about learning, not getting rich.",
+        funFact: "If you had invested just $10 in Bitcoin in 2010, it would be worth over $10 million today. But here's the catch — 90% of people who bought early sold way too soon because they panicked during dips!",
       },
       {
         question: "What is DCA?",
@@ -217,6 +235,8 @@ export const levels: Level[] = [
           "Selling when the price drops",
         ],
         correctIndex: 2,
+        whyWrong: "DCA (Dollar Cost Averaging) means investing the same amount on a regular schedule — regardless of price. It removes emotion and timing anxiety from the equation.",
+        funFact: "Studies show that DCA beats trying to 'time the market' 92% of the time. Even professional traders can't consistently predict the bottom. Boring consistency wins!",
       },
     ],
   },
@@ -265,6 +285,8 @@ export const levels: Level[] = [
           "It has unlimited supply",
         ],
         correctIndex: 1,
+        whyWrong: "Bitcoin only stores and transfers value. Ethereum is a programmable blockchain — developers can build apps, games, and financial tools on top of it using smart contracts.",
+        funFact: "Over $80 billion is locked in Ethereum DeFi apps right now. People are earning interest, trading, and borrowing — all without a single bank involved. It's like a parallel financial system!",
       },
       {
         question: "When are gas fees highest?",
@@ -275,6 +297,8 @@ export const levels: Level[] = [
           "When crypto prices are low",
         ],
         correctIndex: 2,
+        whyWrong: "Gas fees are based on demand, not time. When many people are trying to use the network at once (like during an NFT drop or market crash), fees spike because everyone is competing for space.",
+        funFact: "During the 2021 NFT boom, some people paid $500+ in gas fees for a single transaction! That's why Layer 2 networks (like Arbitrum) were built — same security, 100x cheaper fees.",
       },
       {
         question: "What does HODL mean?",
@@ -285,6 +309,8 @@ export const levels: Level[] = [
           "A type of wallet",
         ],
         correctIndex: 1,
+        whyWrong: "HODL means holding your crypto long-term no matter what the price does. It's the opposite of day trading — you buy, hold for years, and ignore the daily noise.",
+        funFact: "The word HODL was born from a typo in a 2013 Bitcoin forum post. A drunk trader wrote 'I AM HODLING' instead of 'holding' during a price crash. The community loved it so much it became the #1 crypto strategy name!",
       },
     ],
   },

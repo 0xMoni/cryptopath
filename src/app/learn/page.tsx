@@ -1,16 +1,13 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { levels } from "@/data/levels";
 
-export default function LearnPage() {
-  const [completedLevels, setCompletedLevels] = useState<number[]>([]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("cryptopath-progress");
-    if (saved) setCompletedLevels(JSON.parse(saved));
-  }, []);
+export default async function LearnPage() {
+  const cookieStore = await cookies();
+  const progressCookie = cookieStore.get("cryptopath-progress");
+  const completedLevels: number[] = progressCookie
+    ? JSON.parse(progressCookie.value)
+    : [];
 
   function isUnlocked(levelId: number) {
     if (levelId === 1) return true;
@@ -18,79 +15,87 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="px-5 py-8 max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold mb-1">
-        <span className="gradient-text">Your Learning Path</span>
-      </h1>
-      <p className="text-foreground/50 text-sm mb-6">
-        Complete each level to unlock the next. No rushing.
-      </p>
+    <div className="px-5 pt-8 pb-10 max-w-lg mx-auto">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <h1 className="text-2xl font-extrabold gradient-text mb-1">Learn Crypto</h1>
+        <p className="text-sm text-foreground/50">Tap a level to begin. No rush.</p>
+      </div>
 
-      <div className="relative">
-        <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-card-border z-0" />
+      {/* Path */}
+      <div className="flex flex-col items-center gap-6">
+        {levels.map((level) => {
+          const unlocked = isUnlocked(level.id);
+          const completed = completedLevels.includes(level.id);
 
-        <div className="space-y-5 relative z-10">
-          {levels.map((level) => {
-            const unlocked = isUnlocked(level.id);
-            const completed = completedLevels.includes(level.id);
-
+          if (completed) {
             return (
-              <div key={level.id} className="flex items-start gap-4">
-                <div
-                  className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shrink-0 ${
-                    completed
-                      ? "gradient-btn shadow-lg shadow-accent/20"
-                      : unlocked
-                      ? "bg-card border-2 border-accent"
-                      : "bg-surface border border-card-border opacity-50"
-                  }`}
-                >
-                  {completed ? "✓" : level.icon}
+              <Link key={level.id} href={`/learn/${level.id}`} className="block w-full">
+                <div className="level-node-completed">
+                  <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-200/50 mx-auto">
+                    <span className="text-white text-3xl font-bold">✓</span>
+                  </div>
+                  <h3 className="text-center font-bold text-foreground text-base mt-3">
+                    {level.title}
+                  </h3>
+                  <p className="text-center text-emerald-600 text-xs font-semibold mt-0.5">
+                    Completed ✨
+                  </p>
                 </div>
+              </Link>
+            );
+          }
 
-                <div className="flex-1 pt-1">
-                  {unlocked ? (
-                    <Link href={`/learn/${level.id}`}>
-                      <h3 className="font-bold text-foreground text-base mb-0.5">
-                        {level.title}
-                      </h3>
-                      <p className="text-foreground/50 text-xs mb-2">
-                        {level.description}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-medium text-accent bg-accent/10 rounded-full px-2.5 py-0.5">
-                          {level.lessons.length} lessons
-                        </span>
-                        <span className="text-[10px] font-medium text-success bg-success/10 rounded-full px-2.5 py-0.5">
-                          {level.quiz.length} quiz questions
-                        </span>
-                      </div>
-                      {unlocked && !completed && (
-                        <button className="mt-3 gradient-btn text-xs font-medium px-4 py-2 rounded-full shadow-lg shadow-accent/20">
-                          {completedLevels.includes(level.id - 1) || level.id === 1
-                            ? "Start Level"
-                            : "Continue"}
-                        </button>
-                      )}
-                    </Link>
-                  ) : (
-                    <div className="opacity-50">
-                      <h3 className="font-bold text-foreground/60 text-base mb-0.5">
-                        {level.title}
-                      </h3>
-                      <p className="text-foreground/40 text-xs mb-2">
-                        {level.description}
-                      </p>
-                      <span className="text-[10px] font-medium text-foreground/40 bg-surface rounded-full px-2.5 py-0.5 border border-card-border">
-                        🔒 Complete Level {level.id - 1} to unlock
+          if (unlocked) {
+            return (
+              <Link key={level.id} href={`/learn/${level.id}`} className="block w-full">
+                <div className="relative">
+                  <div className="absolute -inset-1 gradient-btn rounded-3xl opacity-20 blur-sm" />
+                  <div className="relative bg-white rounded-2xl p-6 border-2 border-accent/30 shadow-xl shadow-accent/10">
+                    <div className="w-[72px] h-[72px] rounded-full gradient-btn flex items-center justify-center shadow-lg shadow-accent/30 mx-auto">
+                      <span className="text-3xl">{level.icon}</span>
+                    </div>
+                    <h3 className="text-center font-extrabold text-foreground text-lg mt-3">
+                      {level.title}
+                    </h3>
+                    <p className="text-center text-foreground/50 text-xs mt-1">
+                      {level.description}
+                    </p>
+                    <div className="flex justify-center gap-4 mt-3">
+                      <span className="text-xs text-accent font-semibold bg-accent/8 px-3 py-1 rounded-full">
+                        {level.lessons.length} lessons
+                      </span>
+                      <span className="text-xs text-pink-600 font-semibold bg-pink-50 px-3 py-1 rounded-full">
+                        {level.quiz.length} quizzes
                       </span>
                     </div>
-                  )}
+                    <div className="mt-5">
+                      <span className="block w-full gradient-btn py-3.5 rounded-xl font-bold text-sm text-center shadow-lg shadow-accent/25">
+                        Start Level →
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             );
-          })}
-        </div>
+          }
+
+          return (
+            <div key={level.id} className="w-full">
+              <div className="flex flex-col items-center opacity-40">
+                <div className="w-[72px] h-[72px] rounded-full bg-gray-200 flex items-center justify-center mx-auto border-2 border-dashed border-gray-300">
+                  <span className="text-2xl grayscale">{level.icon}</span>
+                </div>
+                <h3 className="text-center font-bold text-foreground/50 text-base mt-3">
+                  {level.title}
+                </h3>
+                <p className="text-center text-foreground/30 text-xs mt-0.5">
+                  🔒 Complete Level {level.id - 1} to unlock
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
