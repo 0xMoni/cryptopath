@@ -257,10 +257,11 @@ export function SimulatorClient({ initialCoins }: { initialCoins: Coin[] }) {
             </p>
             <input
               type="number"
+              inputMode="decimal"
               placeholder="Amount in USD"
               value={buyAmount}
               onChange={(e) => setBuyAmount(e.target.value)}
-              className="w-full bg-surface border border-card-border rounded-xl px-4 py-3 text-sm mb-4 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
+              className="w-full bg-surface border border-card-border rounded-xl px-4 py-3 text-base mb-4 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
             />
             <div className="flex gap-3">
               <button
