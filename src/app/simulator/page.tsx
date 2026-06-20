@@ -111,10 +111,14 @@ const FALLBACK_PRICES: Coin[] = [
   { id: "dogecoin", symbol: "doge", name: "Dogecoin", current_price: 0.15, price_change_percentage_24h: -0.7, image: "https://assets.coingecko.com/coins/images/5/small/dogecoin.png" },
 ];
 
-async function fetchCoins(): Promise<Coin[]> {
+interface CoinWithSparkline extends Coin {
+  sparkline_in_7d?: { price: number[] };
+}
+
+async function fetchCoins(): Promise<CoinWithSparkline[]> {
   try {
     const res = await fetch(
-      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=8&page=1&sparkline=false",
+      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=8&page=1&sparkline=true",
       { headers: { accept: "application/json" }, next: { revalidate: 60 } }
     );
     if (!res.ok) return FALLBACK_PRICES;
@@ -124,6 +128,30 @@ async function fetchCoins(): Promise<Coin[]> {
   } catch {
     return FALLBACK_PRICES;
   }
+}
+
+function Sparkline({ prices, color, width = 80, height = 30 }: { prices: number[]; color: string; width?: number; height?: number }) {
+  if (!prices || prices.length < 2) return null;
+  // Sample down to ~24 points for a clean line
+  const step = Math.max(1, Math.floor(prices.length / 24));
+  const sampled = prices.filter((_, i) => i % step === 0);
+  const min = Math.min(...sampled);
+  const max = Math.max(...sampled);
+  const range = max - min || 1;
+
+  const points = sampled.map((p, i) => {
+    const x = (i / (sampled.length - 1)) * width;
+    const y = height - ((p - min) / range) * (height - 4) - 2;
+    return `${x},${y}`;
+  });
+
+  const pathD = `M${points.join(" L")}`;
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="shrink-0">
+      <path d={pathD} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
 function getSimData(cookieStore: Awaited<ReturnType<typeof cookies>>): SimData {
@@ -761,43 +789,49 @@ export default async function SimulatorPage({
       )}
 
       {/* Market */}
-      <h2 className="text-sm font-bold text-foreground mb-3">📊 Market</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-bold text-foreground">📊 Market <span className="text-foreground/30 font-normal text-xs">· 7d charts</span></h2>
+        <p className="text-[10px] text-foreground/30">Updated just now · <Link href="/simulator?guide=skip" className="text-accent font-medium">Refresh</Link></p>
+      </div>
       <div className="space-y-2">
-        {coins.map((coin) => (
-          <Link
-            key={coin.id}
-            href={`/simulator?buy=${coin.id}`}
-            className="bg-white border border-card-border rounded-xl p-3 flex items-center justify-between shadow-sm block"
-          >
-            <div className="flex items-center gap-2.5">
+        {coins.map((coin) => {
+          const isUp = coin.price_change_percentage_24h >= 0;
+          const sparkColor = isUp ? "#059669" : "#dc2626";
+          return (
+            <Link
+              key={coin.id}
+              href={`/simulator?buy=${coin.id}`}
+              className="bg-white border border-card-border rounded-xl p-3 flex items-center gap-2.5 shadow-sm block"
+            >
               <img
                 src={coin.image}
                 alt={coin.name}
-                className="w-8 h-8 rounded-full"
+                className="w-8 h-8 rounded-full shrink-0"
               />
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-foreground">
                   {coin.symbol.toUpperCase()}
                 </p>
-                <p className="text-[10px] text-foreground/40">{coin.name}</p>
+                <p className="text-[10px] text-foreground/40 truncate">{coin.name}</p>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
+              {(coin as CoinWithSparkline).sparkline_in_7d?.price && (
+                <Sparkline prices={(coin as CoinWithSparkline).sparkline_in_7d!.price} color={sparkColor} />
+              )}
+              <div className="text-right shrink-0">
                 <p className="text-sm font-bold">
                   ${coin.current_price.toLocaleString()}
                 </p>
-                <p className={`text-[10px] font-medium ${coin.price_change_percentage_24h >= 0 ? "text-success" : "text-danger"}`}>
-                  {coin.price_change_percentage_24h >= 0 ? "+" : ""}
+                <p className={`text-[10px] font-medium ${isUp ? "text-success" : "text-danger"}`}>
+                  {isUp ? "+" : ""}
                   {coin.price_change_percentage_24h?.toFixed(1)}%
                 </p>
               </div>
-              <span className="text-xs gradient-btn rounded-lg px-3 py-1.5 font-bold shadow-sm shadow-accent/20">
+              <span className="text-xs gradient-btn rounded-lg px-3 py-1.5 font-bold shadow-sm shadow-accent/20 shrink-0">
                 Buy
               </span>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
 
       {/* FAQ Section */}
