@@ -22,6 +22,8 @@ interface SimData {
   balance: number;
   holdings: Holding[];
   totalTrades: number;
+  profitTrades?: number;
+  diamondHands?: boolean;
 }
 
 const STARTING_BALANCE = 10000;
@@ -391,6 +393,9 @@ export default async function SimulatorPage({
       simData.balance += value;
       simData.holdings = simData.holdings.filter((h) => h.coinId !== params.sell);
       simData.totalTrades = (simData.totalTrades || 0) + 1;
+      if (profit > 0) {
+        simData.profitTrades = (simData.profitTrades || 0) + 1;
+      }
 
       return (
         <div className="px-5 py-8 max-w-lg mx-auto">

@@ -8,6 +8,7 @@ const tabs = [
   { href: "/learn", label: "Learn", icon: "📚" },
   { href: "/simulator", label: "Simulate", icon: "📈" },
   { href: "/jargon", label: "Jargon", icon: "🔍" },
+  { href: "/profile", label: "Profile", icon: "👤" },
 ];
 
 export function BottomNav() {
