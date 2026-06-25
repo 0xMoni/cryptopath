@@ -1,83 +1,134 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 
-export default function Home() {
-  return (
-    <div className="px-5 py-8 max-w-lg mx-auto">
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold mb-2">
-          <span className="gradient-text">CryptoPath</span>
-        </h1>
-        <p className="text-foreground/60 text-base">
-          Zero to first investment. No jargon. No fear.
-        </p>
-      </div>
+export default async function Home() {
+  const cookieStore = await cookies();
 
-      <div className="gradient-surface glow-card rounded-2xl p-5 mb-8 border border-card-border">
-        <p className="text-foreground/70 text-sm leading-relaxed italic">
-          &ldquo;People don&rsquo;t avoid crypto because they don&rsquo;t want
-          to. They avoid it because the more they try to learn, the more
-          overwhelmed they get — more fear — trust fewer sources — learn less —
-          stay stuck.&rdquo;
-        </p>
-        <p className="gradient-text text-sm mt-3 font-bold">
-          We break that cycle. ⚡
-        </p>
-      </div>
+  // Redirect first-time users to onboarding
+  const onboarded = cookieStore.get("cryptopath-onboarded");
+  const progressCookie = cookieStore.get("cryptopath-progress");
+  const completedLevels: number[] = progressCookie
+    ? JSON.parse(progressCookie.value)
+    : [];
 
-      <div className="space-y-4">
-        <Link
-          href="/learn"
-          className="block bg-card glow-card rounded-2xl p-5 border border-card-border hover:scale-[1.02] transition-all"
-        >
-          <div className="flex items-center gap-4">
-            <span className="text-3xl">📚</span>
-            <div>
-              <h2 className="font-bold text-lg text-foreground">Learn the Basics</h2>
-              <p className="text-foreground/50 text-sm">
-                Bite-sized cards. 30 seconds each. Real analogies.
-              </p>
+  const simCookie = cookieStore.get("cryptopath-sim");
+  let totalTrades = 0;
+  if (simCookie) {
+    try {
+      const sim = JSON.parse(decodeURIComponent(simCookie.value));
+      totalTrades = sim.totalTrades ?? 0;
+    } catch {}
+  }
+
+  const hasStarted = completedLevels.length > 0 || totalTrades > 0;
+
+  if (!onboarded && !hasStarted) {
+    return (
+      <>
+        <meta httpEquiv="refresh" content="0;url=/onboarding" />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-2xl gradient-btn flex items-center justify-center mx-auto mb-4 shadow-lg shadow-accent/25">
+              <span className="text-3xl">₿</span>
             </div>
+            <p className="text-foreground/40 text-sm">Loading...</p>
           </div>
-        </Link>
-
-        <Link
-          href="/simulator"
-          className="block bg-card glow-card rounded-2xl p-5 border border-card-border hover:scale-[1.02] transition-all"
-        >
-          <div className="flex items-center gap-4">
-            <span className="text-3xl">📈</span>
-            <div>
-              <h2 className="font-bold text-lg text-foreground">Paper Trading</h2>
-              <p className="text-foreground/50 text-sm">
-                Practice with fake money. Real prices. Zero risk.
-              </p>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/jargon"
-          className="block bg-card glow-card rounded-2xl p-5 border border-card-border hover:scale-[1.02] transition-all"
-        >
-          <div className="flex items-center gap-4">
-            <span className="text-3xl">🔍</span>
-            <div>
-              <h2 className="font-bold text-lg text-foreground">Jargon Translator</h2>
-              <p className="text-foreground/50 text-sm">
-                Search any crypto term. Get a human explanation.
-              </p>
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      <div className="mt-10 text-center">
-        <div className="inline-flex items-center gap-2 bg-success/10 border border-success/30 rounded-full px-5 py-2.5">
-          <span className="text-success text-sm">✓</span>
-          <span className="text-sm text-foreground/60 font-medium">
-            No selling. No affiliate links. No shilling.
-          </span>
         </div>
+      </>
+    );
+  }
+
+  return (
+    <div className="px-5 pt-10 pb-24 max-w-lg mx-auto">
+      {/* Hero */}
+      <div className="text-center mb-10">
+        <div className="w-16 h-16 rounded-2xl gradient-btn flex items-center justify-center mx-auto mb-4 shadow-lg shadow-accent/25">
+          <span className="text-3xl">₿</span>
+        </div>
+        <h1 className="text-3xl font-black text-foreground mb-2">CryptoPath</h1>
+        <p className="text-foreground/50 text-[15px] leading-relaxed max-w-xs mx-auto">
+          {hasStarted ? "Welcome back! Keep learning." : "Zero to first investment. No jargon. No fear."}
+        </p>
+      </div>
+
+      {/* Progress indicator for returning users */}
+      {hasStarted && (
+        <div className="bg-white rounded-2xl p-4 shadow-sm mb-6 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+            <span className="text-xl">🔥</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-foreground">Your Progress</p>
+            <p className="text-xs text-foreground/40">
+              {completedLevels.length} levels · {totalTrades} trades
+            </p>
+          </div>
+          <Link href="/profile" className="text-accent text-xs font-bold">
+            View →
+          </Link>
+        </div>
+      )}
+
+      {/* Feature Cards */}
+      <div className="space-y-3 mb-8">
+        <Link href="/learn" className="block">
+          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+              <span className="text-2xl">📚</span>
+            </div>
+            <div className="flex-1">
+              <h2 className="font-bold text-[15px] text-foreground">Learn</h2>
+              <p className="text-foreground/40 text-xs mt-0.5">Bite-sized lessons with real analogies</p>
+            </div>
+            <span className="text-foreground/20 text-lg">›</span>
+          </div>
+        </Link>
+
+        <Link href="/simulator" className="block">
+          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+              <span className="text-2xl">📈</span>
+            </div>
+            <div className="flex-1">
+              <h2 className="font-bold text-[15px] text-foreground">Paper Trade</h2>
+              <p className="text-foreground/40 text-xs mt-0.5">Practice with fake money, real prices</p>
+            </div>
+            <span className="text-foreground/20 text-lg">›</span>
+          </div>
+        </Link>
+
+        <Link href="/jargon" className="block">
+          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center shrink-0">
+              <span className="text-2xl">🔍</span>
+            </div>
+            <div className="flex-1">
+              <h2 className="font-bold text-[15px] text-foreground">Jargon Buster</h2>
+              <p className="text-foreground/40 text-xs mt-0.5">Crypto terms in plain English</p>
+            </div>
+            <span className="text-foreground/20 text-lg">›</span>
+          </div>
+        </Link>
+
+        <Link href="/wallet-guide" className="block">
+          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+              <span className="text-2xl">👛</span>
+            </div>
+            <div className="flex-1">
+              <h2 className="font-bold text-[15px] text-foreground">Wallet Setup</h2>
+              <p className="text-foreground/40 text-xs mt-0.5">Get ready for your first real purchase</p>
+            </div>
+            <span className="text-foreground/20 text-lg">›</span>
+          </div>
+        </Link>
+      </div>
+
+      {/* Trust badge */}
+      <div className="text-center">
+        <p className="text-[11px] text-foreground/30 font-medium">
+          No selling · No affiliate links · Just learning
+        </p>
       </div>
     </div>
   );
